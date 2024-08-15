@@ -5,7 +5,7 @@ const readline = require('readline');
 
 let fetch;
 (async () => {
-    fetch = (await import('node-fetch')).default;
+  fetch = (await import('node-fetch')).default;
 })();
 
 // Define the scopes
@@ -17,11 +17,14 @@ const UPLOADED_VIDEOS_FILE = 'uploaded_videos.txt';
 const UPLOAD_COUNT_FILE = 'upload_count.txt';
 const ALLOWED_EXTENSIONS = ['.mp4'];
 
+// Read config.json
+ const config = require('./config.js');
+
 // Authenticate and create a YouTube API client
 async function getAuthenticatedService() {
     const credentials = JSON.parse(fs.readFileSync(CREDENTIALS_PATH, 'utf8'));
     const { client_secret, client_id } = credentials.installed;
-    const redirect_uris = credentials.installed.redirect_uris || ['urn:ietf:wg:oauth:2.0:oob'];
+    const redirect_uris = ['urn:ietf:wg:oauth:2.0:oob'];
     const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
     if (fs.existsSync(TOKEN_PATH)) {
@@ -75,7 +78,7 @@ async function getAccessToken(oAuth2Client) {
 }
 
 // Upload video to YouTube
-async function uploadVideo(youtube, videoFile, title, description, category, tags) {
+async function uploadVideo(youtube, videoFile, title, description, category, tags, privacyStatus) {
     const filePath = path.join(VIDEO_DIR, videoFile);
     const fileSize = fs.statSync(filePath).size;
 
@@ -91,7 +94,7 @@ async function uploadVideo(youtube, videoFile, title, description, category, tag
                         categoryId: category,
                     },
                     status: {
-                        privacyStatus: 'public',
+                        privacyStatus: privacyStatus,
                     },
                 },
                 media: {
@@ -157,18 +160,19 @@ async function main() {
         let uploadCount = loadUploadCount();
 
         if (videoFiles.length > 0) {
-            for (let i = 0; i < 4 && videoFiles.length > 0; i++) { // Upload three videos
+            for (let i = 0; i < config.upload_count && videoFiles.length > 0; i++) { // Upload three videos
                 const videoFile = videoFiles.shift();
                 uploadCount += 1;
-                const title = `Daily Facts #${uploadCount} #facts #tech #smartphone`;
-                const description = `Daily Facts #${uploadCount} #facts #tech #smartphone`;
-                const category = '22'; // Education
-                const tags = ['OnlineClasses', 'OnlineLearning', 'LearningTips', 'LearningHacks', 'DailyFacts'];
+                const title = `${config.title_prefix}${uploadCount} #facts #tech #smartphone`;
+                const description = `${config.description_prefix}${uploadCount} #facts #tech #smartphone`;
+                const category = config.category;
+                const tags = config.tags;
+                const privacyStatus = config.privacy_status;
 
                 console.log(`Uploading video: ${videoFile} with title: ${title}`);
 
                 try {
-                    const response = await uploadVideo(youtube, videoFile, title, description, category, tags);
+                    const response = await uploadVideo(youtube, videoFile, title, description, category, tags, privacyStatus);
                     console.log(`Successfully uploaded ${videoFile}`);
                     saveUploadedVideo(videoFile);
                     saveUploadCount(uploadCount);
@@ -179,14 +183,14 @@ async function main() {
                     break; // Exit the loop to avoid uploading the next video
                 }
 
-                if (i < 3) { // Wait 4 hours before uploading the next video in the same day
-                    console.log(`Waiting for 4 hours before uploading the next video...`);
-                    await delay(4 * 60 * 60 * 1000); // Wait for 4 hours
+                if (i < config.upload_count - 1) { // Wait 4 hours before uploading the next video in the same day
+                    console.log(`Waiting for ${config.upload_interval} hours before uploading the next video...`);
+                    await delay(config.upload_interval * 60 * 60 * 1000); // Wait for 4 hours
                 }
             }
 
-            console.log(`Waiting for 24 hours before the next upload batch...`);
-            await delay(24 * 60 * 60 * 1000); // Wait for 24 hours before uploading the next batch
+            console.log(`Waiting for ${config.batch_interval} hours before the next upload batch...`);
+            await delay(config.batch_interval * 60 * 60 * 1000); // Wait for 24 hours before uploading the next batch
         } else {
             console.log(`No more videos to upload. Checking again in 1 hour...`);
             await delay(60 * 60 * 1000); // Wait for 1 hour before checking again
