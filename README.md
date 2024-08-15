@@ -13,6 +13,8 @@ YAUploader is your go-to tool for automating video uploads to your YouTube chann
 
 ## 🚀 Getting Started
 
+[![Run on Repl.it](https://repl.it/badge/github/FreeCode911/YAUploader)](https://repl.it/github/FreeCode911/YAUploader)
+
 1. **🎛️ Set up Google Cloud Platform (GCP) Project:**
     * Create a new GCP project and enable the YouTube Data API.
     * Head to [YouTube Data API Library](https://console.cloud.google.com/apis/library/youtube.googleapis.com) and enable it.
