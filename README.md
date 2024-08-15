@@ -1,4 +1,4 @@
-# YouTube Auto Uploader
+# YAUploader
 
 This YAUpload is a YouTube auto uploader that allows you to automatically upload videos to your YouTube channel at scheduled intervals. 
 
@@ -19,19 +19,19 @@ This YAUpload is a YouTube auto uploader that allows you to automatically upload
     * Create an API Key for the project.
     * Download your credentials file from the Google Cloud Console.
 
-2. **Configure the Repl:**
+2. **Configure the YAUploader:**
     * **Replace the placeholder values in `credentials.json` with your GCP API credentials.**
     * **Create a `videos` directory in the Repl to store your video files.**
     * **Set the `VIDEO_DIR` variable in `index.js` to the path of your video directory.**
-    * **Customize the `title`, `description`, `category`, and `tags` variables in `index.js` for your videos.**
+    * **Customize the `title`, `description`, `category`, and `tags` variables in `Config.js` for your videos.**
 
-3. **Run the Repl:**
+3. **Run the YAUploader:**
     * Run `node start` to start the auto uploader.
     * The Repl will prompt you to authorize the app to access your YouTube account.
     * Follow the instructions on the screen to complete the authorization process.
 
 4. **Upload Videos:**
-    * The Repl will automatically scan the `videos` directory for new videos and upload them according to your configured schedule. 
+    * The YAUploader will automatically scan the `videos` directory for new videos and upload them according to your configured schedule. 
 
 ## Customization
 
